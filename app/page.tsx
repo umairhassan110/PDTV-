@@ -1,12 +1,22 @@
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowRight, Play, Radio } from "lucide-react";
+
+import {
+  ArrowRight,
+  Play,
+  Radio,
+} from "lucide-react";
 
 import { SiteHeader } from "@/components/site-header";
 import { StoryCard } from "@/components/story-card";
+
 import { publishedStories } from "@/lib/data";
-import { storyText } from "@/lib/types";
-import type { Language } from "@/lib/types";
+
+import {
+  categoryText,
+  readLanguage,
+  storyText,
+} from "@/lib/types";
 
 const ui = {
   en: {
@@ -22,8 +32,10 @@ const ui = {
     liveNow: "LIVE",
     pdtvLive: "PDTV LIVE",
     brand: "PDTV",
-    fullName: "Pakistan Diamond Television",
-    copyright: "Pakistan Ki Awaaz, Duniya Tak.",
+    fullName:
+      "Pakistan Diamond Television",
+    copyright:
+      "Pakistan Ki Awaaz, Duniya Tak.",
   },
 
   ur: {
@@ -39,8 +51,10 @@ const ui = {
     liveNow: "لائیو",
     pdtvLive: "پی ڈی ٹی وی لائیو",
     brand: "پی ڈی ٹی وی",
-    fullName: "پاکستان ڈائمنڈ ٹیلی وژن",
-    copyright: "پاکستان کی آواز، دنیا تک۔",
+    fullName:
+      "پاکستان ڈائمنڈ ٹیلی وژن",
+    copyright:
+      "پاکستان کی آواز، دنیا تک۔",
   },
 
   sd: {
@@ -56,8 +70,10 @@ const ui = {
     liveNow: "لائيو",
     pdtvLive: "پي ڊي ٽي وي لائيو",
     brand: "پي ڊي ٽي وي",
-    fullName: "پاڪستان ڊائمنڊ ٽيليويزن",
-    copyright: "پاڪستان جو آواز، دنيا تائين۔",
+    fullName:
+      "پاڪستان ڊائمنڊ ٽيليويزن",
+    copyright:
+      "پاڪستان جو آواز، دنيا تائين۔",
   },
 };
 
@@ -72,54 +88,69 @@ export default async function Home({
   const params = await searchParams;
 
   /*
-   * Default language = Sindhi
-   *
-   * /             -> Sindhi
-   * /?lang=sd     -> Sindhi
-   * /?lang=ur     -> Urdu
-   * /?lang=en     -> English
+   * readLanguage() defaults to Sindhi.
    */
-  const language: Language =
-    params.lang === "en"
-      ? "en"
-      : params.lang === "ur"
-      ? "ur"
-      : "sd";
+  const language = readLanguage(
+    params.lang
+  );
 
-  const isRtl = language === "ur" || language === "sd";
+  const isRtl =
+    language === "ur" ||
+    language === "sd";
 
-  const stories = await publishedStories();
+  const stories =
+    await publishedStories();
 
   const filtered = params.category
-    ? stories.filter((story) => story.category === params.category)
+    ? stories.filter(
+        (story) =>
+          story.category ===
+          params.category
+      )
     : stories;
 
   const lead =
-    filtered.find((story) => story.is_lead) || filtered[0];
+    filtered.find(
+      (story) => story.is_lead
+    ) || filtered[0];
 
   const rest = filtered.filter(
-    (story) => story.id !== lead?.id
+    (story) =>
+      story.id !== lead?.id
   );
 
   const breaking = stories.filter(
-    (story) => story.is_breaking
+    (story) =>
+      story.is_breaking
   );
 
   const t = ui[language];
 
   return (
-    <div dir={isRtl ? "rtl" : "ltr"}>
-      <SiteHeader language={language} />
+    <div
+      dir={isRtl ? "rtl" : "ltr"}
+    >
+      <SiteHeader
+        language={language}
+      />
 
       {breaking.length > 0 && (
         <section className="breaking-strip">
           <div className="shell breaking-inner">
-            <strong>{t.breaking}</strong>
+            <strong>
+              {t.breaking}
+            </strong>
 
             <div className="ticker">
               <span>
                 {breaking
-                  .map((story) => storyText(story, language).title)
+                  .map(
+                    (story) =>
+                      storyText(
+                        story,
+                        language
+                      ).title
+                  )
                   .join("  •  ")}
               </span>
             </div>
@@ -134,8 +165,15 @@ export default async function Home({
               <div className="lead-image">
                 {lead.image_url ? (
                   <Image
-                    src={lead.image_url}
-                    alt={storyText(lead, language).title}
+                    src={
+                      lead.image_url
+                    }
+                    alt={
+                      storyText(
+                        lead,
+                        language
+                      ).title
+                    }
                     fill
                     priority
                     sizes="(max-width: 950px) 100vw, 66vw"
@@ -150,27 +188,69 @@ export default async function Home({
 
                 <div className="lead-content">
                   <span className="category-chip">
-                    {lead.category}
+                    {categoryText(
+                      lead.category,
+                      language
+                    )}
                   </span>
 
                   <h1>
-                    {storyText(lead, language).title}
+                    {
+                      storyText(
+                        lead,
+                        language
+                      ).title
+                    }
                   </h1>
 
                   <p>
-                    {storyText(lead, language).summary}
+                    {
+                      storyText(
+                        lead,
+                        language
+                      ).summary
+                    }
                   </p>
+
+                  {lead.published_at && (
+                    <div className="story-date">
+                      {new Intl.DateTimeFormat(
+                        language ===
+                          "en"
+                          ? "en-PK"
+                          : language ===
+                              "ur"
+                            ? "ur-PK"
+                            : "sd-PK",
+                        {
+                          day: "numeric",
+                          month:
+                            "long",
+                          year: "numeric",
+                          hour: "numeric",
+                          minute:
+                            "2-digit",
+                        }
+                      ).format(
+                        new Date(
+                          lead.published_at
+                        )
+                      )}
+                    </div>
+                  )}
 
                   <Link
                     href={`/news/${lead.slug}?lang=${language}`}
                   >
                     {t.read}
+
                     <ArrowRight
                       size={16}
                       style={{
-                        transform: isRtl
-                          ? "rotate(180deg)"
-                          : "none",
+                        transform:
+                          isRtl
+                            ? "rotate(180deg)"
+                            : "none",
                       }}
                     />
                   </Link>
@@ -182,12 +262,18 @@ export default async function Home({
                   PDTV
                 </span>
 
-                <h1>{t.brand}</h1>
+                <h1>
+                  {t.brand}
+                </h1>
 
-                <p>{t.empty}</p>
+                <p>
+                  {t.empty}
+                </p>
 
                 <Link href="/admin">
-                  {t.openNewsroom}
+                  {
+                    t.openNewsroom
+                  }
                 </Link>
               </div>
             )}
@@ -196,45 +282,84 @@ export default async function Home({
           <aside className="live-panel">
             <div className="live-heading">
               <span>
-                <Radio size={16} />
+                <Radio
+                  size={16}
+                />
+
                 {t.live}
               </span>
 
-              <b>{t.liveNow}</b>
+              <b>
+                {t.liveNow}
+              </b>
             </div>
 
             <div className="live-screen">
-              <Play size={46} fill="currentColor" />
-              <span>{t.pdtvLive}</span>
+              <Play
+                size={46}
+                fill="currentColor"
+              />
+
+              <span>
+                {t.pdtvLive}
+              </span>
             </div>
 
             <div className="mini-list">
-              {stories.slice(0, 3).map((story, index) => (
-                <Link
-                  key={story.id}
-                  href={`/news/${story.slug}?lang=${language}`}
-                >
-                  <b>
-                    {String(index + 1).padStart(2, "0")}
-                  </b>
+              {stories
+                .slice(0, 3)
+                .map(
+                  (
+                    story,
+                    index
+                  ) => (
+                    <Link
+                      key={
+                        story.id
+                      }
+                      href={`/news/${story.slug}?lang=${language}`}
+                    >
+                      <b>
+                        {String(
+                          index +
+                            1
+                        ).padStart(
+                          2,
+                          "0"
+                        )}
+                      </b>
 
-                  <span>
-                    {storyText(story, language).title}
-                  </span>
-                </Link>
-              ))}
+                      <span>
+                        {
+                          storyText(
+                            story,
+                            language
+                          ).title
+                        }
+                      </span>
+                    </Link>
+                  )
+                )}
             </div>
           </aside>
         </section>
 
-        {filtered.length > 0 && (
+        {filtered.length >
+          0 && (
           <section className="shell content-section">
             <div className="section-title">
               <div>
-                <span>{t.latest}</span>
+                <span>
+                  {t.latest}
+                </span>
 
                 <h2>
-                  {params.category || t.top}
+                  {params.category
+                    ? categoryText(
+                        params.category,
+                        language
+                      )
+                    : t.top}
                 </h2>
               </div>
 
@@ -243,48 +368,97 @@ export default async function Home({
 
             <div className="content-layout">
               <div className="stories-grid">
-                {rest.map((story) => (
-                  <StoryCard
-                    key={story.id}
-                    story={story}
-                    language={language}
-                  />
-                ))}
+                {rest.map(
+                  (story) => (
+                    <StoryCard
+                      key={
+                        story.id
+                      }
+                      story={
+                        story
+                      }
+                      language={
+                        language
+                      }
+                    />
+                  )
+                )}
               </div>
 
               <aside className="most-read">
-                <h3>{t.most}</h3>
+                <h3>
+                  {t.most}
+                </h3>
 
-                {stories.slice(0, 5).map((story, index) => (
-                  <Link
-                    key={story.id}
-                    href={`/news/${story.slug}?lang=${language}`}
-                  >
-                    <b>
-                      {String(index + 1).padStart(2, "0")}
-                    </b>
+                {stories
+                  .slice(0, 5)
+                  .map(
+                    (
+                      story,
+                      index
+                    ) => (
+                      <Link
+                        key={
+                          story.id
+                        }
+                        href={`/news/${story.slug}?lang=${language}`}
+                      >
+                        <b>
+                          {String(
+                            index +
+                              1
+                          ).padStart(
+                            2,
+                            "0"
+                          )}
+                        </b>
 
-                    <span>
-                      <small>{story.category}</small>
-                      {storyText(story, language).title}
-                    </span>
-                  </Link>
-                ))}
+                        <span>
+                          <small>
+                            {categoryText(
+                              story.category,
+                              language
+                            )}
+                          </small>
+
+                          {
+                            storyText(
+                              story,
+                              language
+                            ).title
+                          }
+                        </span>
+                      </Link>
+                    )
+                  )}
               </aside>
             </div>
           </section>
         )}
       </main>
 
-      <footer>
+      <footer
+        dir={
+          isRtl
+            ? "rtl"
+            : "ltr"
+        }
+      >
         <div className="shell footer-inner">
           <div>
-            <strong>{t.brand}</strong>
-            <p>{t.fullName}</p>
+            <strong>
+              {t.brand}
+            </strong>
+
+            <p>
+              {t.fullName}
+            </p>
           </div>
 
           <p>
-            © {new Date().getFullYear()} {t.brand}.{" "}
+            ©{" "}
+            {new Date().getFullYear()}{" "}
+            {t.brand}.{" "}
             {t.copyright}
           </p>
         </div>

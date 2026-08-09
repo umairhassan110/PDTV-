@@ -67,6 +67,14 @@ export const languageInfo: Record<
   },
 };
 
+/*
+ * DEFAULT LANGUAGE = SINDHI
+ *
+ * no lang -> sd
+ * ?lang=en -> English
+ * ?lang=ur -> Urdu
+ * ?lang=sd -> Sindhi
+ */
 export function readLanguage(value?: string): Language {
   if (value === "en") return "en";
   if (value === "ur") return "ur";
@@ -79,4 +87,79 @@ export function storyText(story: Story, lang: Language) {
     summary: story[`summary_${lang}`],
     body: story[`body_${lang}`],
   };
+}
+
+const categoryTranslations: Record<
+  string,
+  Record<Language, string>
+> = {
+  Pakistan: {
+    en: "Pakistan",
+    ur: "پاکستان",
+    sd: "پاڪستان",
+  },
+
+  Sindh: {
+    en: "Sindh",
+    ur: "سندھ",
+    sd: "سنڌ",
+  },
+
+  World: {
+    en: "World",
+    ur: "دنیا",
+    sd: "دنيا",
+  },
+
+  Politics: {
+    en: "Politics",
+    ur: "سیاست",
+    sd: "سياست",
+  },
+
+  Sports: {
+    en: "Sports",
+    ur: "کھیل",
+    sd: "رانديون",
+  },
+
+  Business: {
+    en: "Business",
+    ur: "کاروبار",
+    sd: "ڪاروبار",
+  },
+
+  Technology: {
+    en: "Technology",
+    ur: "ٹیکنالوجی",
+    sd: "ٽيڪنالاجي",
+  },
+
+  Education: {
+    en: "Education",
+    ur: "تعلیم",
+    sd: "تعليم",
+  },
+
+  Entertainment: {
+    en: "Entertainment",
+    ur: "تفریح",
+    sd: "وندر",
+  },
+
+  Health: {
+    en: "Health",
+    ur: "صحت",
+    sd: "صحت",
+  },
+};
+
+export function categoryText(
+  category: string,
+  language: Language
+) {
+  return (
+    categoryTranslations[category]?.[language] ||
+    category
+  );
 }

@@ -1603,4 +1603,18 @@ footer{
   .article-shell h1{
     font-size:37px
   }
+  .story-date{
+  margin-top:10px;
+  margin-bottom:6px;
+  font-size:12px;
+  color:#dce4ee;
+}
+
+.story-date-meta{
+  display:flex;
+  align-items:center;
+  gap:6px;
+  color:var(--muted);
+  font-size:11px;
+}
 }
