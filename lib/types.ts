@@ -3,21 +3,28 @@ export type Language = "en" | "ur" | "sd";
 export type Story = {
   id: string;
   slug: string;
+
   title_en: string;
   title_ur: string;
   title_sd: string;
+
   summary_en: string;
   summary_ur: string;
   summary_sd: string;
+
   body_en: string;
   body_ur: string;
   body_sd: string;
+
   category: string;
   author: string;
   image_url: string | null;
+
   status: "draft" | "published";
+
   is_breaking: boolean;
   is_lead: boolean;
+
   published_at: string | null;
   created_at: string;
   updated_at: string;
@@ -33,14 +40,37 @@ export type Profile = {
   created_at: string;
 };
 
-export const languageInfo: Record<Language, { label: string; native: string; dir: "ltr" | "rtl" }> = {
-  en: { label: "English", native: "English", dir: "ltr" },
-  ur: { label: "Urdu", native: "اردو", dir: "rtl" },
-  sd: { label: "Sindhi", native: "سنڌي", dir: "rtl" },
+export const languageInfo: Record<
+  Language,
+  {
+    label: string;
+    native: string;
+    dir: "ltr" | "rtl";
+  }
+> = {
+  en: {
+    label: "English",
+    native: "English",
+    dir: "ltr",
+  },
+
+  ur: {
+    label: "Urdu",
+    native: "اردو",
+    dir: "rtl",
+  },
+
+  sd: {
+    label: "Sindhi",
+    native: "سنڌي",
+    dir: "rtl",
+  },
 };
 
 export function readLanguage(value?: string): Language {
-  return value === "ur" || value === "sd" ? value : "en";
+  if (value === "en") return "en";
+  if (value === "ur") return "ur";
+  return "sd";
 }
 
 export function storyText(story: Story, lang: Language) {
@@ -50,4 +80,3 @@ export function storyText(story: Story, lang: Language) {
     body: story[`body_${lang}`],
   };
 }
-
