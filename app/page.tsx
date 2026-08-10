@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -9,14 +10,19 @@ import {
 
 import { SiteHeader } from "@/components/site-header";
 import { StoryCard } from "@/components/story-card";
-
 import { publishedStories } from "@/lib/data";
 
 import {
   categoryText,
+  formatPublishedDate,
   readLanguage,
   storyText,
+  type Language,
 } from "@/lib/types";
+
+const SITE_URL =
+  process.env.NEXT_PUBLIC_SITE_URL ||
+  "https://www.pdtv.me";
 
 const ui = {
   en: {
@@ -36,6 +42,10 @@ const ui = {
       "Pakistan Diamond Television",
     copyright:
       "Pakistan Ki Awaaz, Duniya Tak.",
+    seoTitle:
+      "PDTV | Latest Pakistan & Sindh News",
+    seoDescription:
+      "Latest breaking news from Pakistan, Sindh and around the world in English.",
   },
 
   ur: {
@@ -55,6 +65,10 @@ const ui = {
       "پاکستان ڈائمنڈ ٹیلی وژن",
     copyright:
       "پاکستان کی آواز، دنیا تک۔",
+    seoTitle:
+      "پی ڈی ٹی وی | پاکستان اور سندھ کی تازہ خبریں",
+    seoDescription:
+      "پاکستان، سندھ اور دنیا بھر کی تازہ ترین اور بریکنگ خبریں اردو میں۔",
   },
 
   sd: {
@@ -74,8 +88,72 @@ const ui = {
       "پاڪستان ڊائمنڊ ٽيليويزن",
     copyright:
       "پاڪستان جو آواز، دنيا تائين۔",
+    seoTitle:
+      "پي ڊي ٽي وي | پاڪستان ۽ سنڌ جون تازيون خبرون",
+    seoDescription:
+      "پاڪستان، سنڌ ۽ دنيا جون تازيون ۽ اهم خبرون سنڌي ٻولي ۾.",
   },
 };
+
+export async function generateMetadata({
+  searchParams,
+}: {
+  searchParams: Promise<{
+    lang?: string;
+    category?: string;
+  }>;
+}): Promise<Metadata> {
+  const params = await searchParams;
+  const language =
+    readLanguage(params.lang);
+
+  const t = ui[language];
+
+  const canonical =
+    params.category
+      ? `${SITE_URL}/?lang=${language}&category=${encodeURIComponent(
+          params.category
+        )}`
+      : `${SITE_URL}/?lang=${language}`;
+
+  return {
+    title: t.seoTitle,
+    description: t.seoDescription,
+
+    alternates: {
+      canonical,
+      languages: {
+        en: `${SITE_URL}/?lang=en`,
+        ur: `${SITE_URL}/?lang=ur`,
+        sd: `${SITE_URL}/?lang=sd`,
+      },
+    },
+
+    openGraph: {
+      type: "website",
+      url: canonical,
+      title: t.seoTitle,
+      description: t.seoDescription,
+      siteName: "PDTV",
+      images: [
+        {
+          url: `${SITE_URL}/pdtv-logo.png`,
+          alt:
+            "PDTV Pakistan Diamond Television",
+        },
+      ],
+    },
+
+    twitter: {
+      card: "summary_large_image",
+      title: t.seoTitle,
+      description: t.seoDescription,
+      images: [
+        `${SITE_URL}/pdtv-logo.png`,
+      ],
+    },
+  };
+}
 
 export default async function Home({
   searchParams,
@@ -87,12 +165,8 @@ export default async function Home({
 }) {
   const params = await searchParams;
 
-  /*
-   * readLanguage() defaults to Sindhi.
-   */
-  const language = readLanguage(
-    params.lang
-  );
+  const language: Language =
+    readLanguage(params.lang);
 
   const isRtl =
     language === "ur" ||
@@ -101,34 +175,41 @@ export default async function Home({
   const stories =
     await publishedStories();
 
-  const filtered = params.category
-    ? stories.filter(
-        (story) =>
-          story.category ===
-          params.category
-      )
-    : stories;
+  const filtered =
+    params.category
+      ? stories.filter(
+          (story) =>
+            story.category ===
+            params.category
+        )
+      : stories;
 
   const lead =
     filtered.find(
       (story) => story.is_lead
     ) || filtered[0];
 
-  const rest = filtered.filter(
-    (story) =>
-      story.id !== lead?.id
-  );
+  const rest =
+    filtered.filter(
+      (story) =>
+        story.id !== lead?.id
+    );
 
-  const breaking = stories.filter(
-    (story) =>
-      story.is_breaking
-  );
+  const breaking =
+    stories.filter(
+      (story) =>
+        story.is_breaking
+    );
 
   const t = ui[language];
 
   return (
     <div
-      dir={isRtl ? "rtl" : "ltr"}
+      dir={
+        isRtl
+          ? "rtl"
+          : "ltr"
+      }
     >
       <SiteHeader
         language={language}
@@ -165,9 +246,7 @@ export default async function Home({
               <div className="lead-image">
                 {lead.image_url ? (
                   <Image
-                    src={
-                      lead.image_url
-                    }
+                    src={lead.image_url}
                     alt={
                       storyText(
                         lead,
@@ -214,27 +293,9 @@ export default async function Home({
 
                   {lead.published_at && (
                     <div className="story-date">
-                      {new Intl.DateTimeFormat(
-                        language ===
-                          "en"
-                          ? "en-PK"
-                          : language ===
-                              "ur"
-                            ? "ur-PK"
-                            : "sd-PK",
-                        {
-                          day: "numeric",
-                          month:
-                            "long",
-                          year: "numeric",
-                          hour: "numeric",
-                          minute:
-                            "2-digit",
-                        }
-                      ).format(
-                        new Date(
-                          lead.published_at
-                        )
+                      {formatPublishedDate(
+                        lead.published_at,
+                        language
                       )}
                     </div>
                   )}
@@ -262,18 +323,12 @@ export default async function Home({
                   PDTV
                 </span>
 
-                <h1>
-                  {t.brand}
-                </h1>
+                <h1>{t.brand}</h1>
 
-                <p>
-                  {t.empty}
-                </p>
+                <p>{t.empty}</p>
 
                 <Link href="/admin">
-                  {
-                    t.openNewsroom
-                  }
+                  {t.openNewsroom}
                 </Link>
               </div>
             )}
@@ -282,16 +337,11 @@ export default async function Home({
           <aside className="live-panel">
             <div className="live-heading">
               <span>
-                <Radio
-                  size={16}
-                />
-
+                <Radio size={16} />
                 {t.live}
               </span>
 
-              <b>
-                {t.liveNow}
-              </b>
+              <b>{t.liveNow}</b>
             </div>
 
             <div className="live-screen">
@@ -314,15 +364,12 @@ export default async function Home({
                     index
                   ) => (
                     <Link
-                      key={
-                        story.id
-                      }
+                      key={story.id}
                       href={`/news/${story.slug}?lang=${language}`}
                     >
                       <b>
                         {String(
-                          index +
-                            1
+                          index + 1
                         ).padStart(
                           2,
                           "0"
@@ -344,8 +391,7 @@ export default async function Home({
           </aside>
         </section>
 
-        {filtered.length >
-          0 && (
+        {filtered.length > 0 && (
           <section className="shell content-section">
             <div className="section-title">
               <div>
@@ -371,12 +417,8 @@ export default async function Home({
                 {rest.map(
                   (story) => (
                     <StoryCard
-                      key={
-                        story.id
-                      }
-                      story={
-                        story
-                      }
+                      key={story.id}
+                      story={story}
                       language={
                         language
                       }
@@ -398,15 +440,12 @@ export default async function Home({
                       index
                     ) => (
                       <Link
-                        key={
-                          story.id
-                        }
+                        key={story.id}
                         href={`/news/${story.slug}?lang=${language}`}
                       >
                         <b>
                           {String(
-                            index +
-                              1
+                            index + 1
                           ).padStart(
                             2,
                             "0"

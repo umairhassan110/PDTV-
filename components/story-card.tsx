@@ -1,6 +1,5 @@
 import Image from "next/image";
 import Link from "next/link";
-
 import {
   ArrowUpRight,
   CalendarDays,
@@ -8,32 +7,11 @@ import {
 
 import {
   categoryText,
+  formatPublishedDate,
   storyText,
   type Language,
   type Story,
 } from "@/lib/types";
-
-function formatStoryDate(
-  value: string,
-  language: Language
-) {
-  const date = new Date(value);
-
-  const locale =
-    language === "en"
-      ? "en-PK"
-      : language === "ur"
-        ? "ur-PK"
-        : "sd-PK";
-
-  return new Intl.DateTimeFormat(locale, {
-    day: "numeric",
-    month: "long",
-    year: "numeric",
-    hour: "numeric",
-    minute: "2-digit",
-  }).format(date);
-}
 
 export function StoryCard({
   story,
@@ -42,17 +20,22 @@ export function StoryCard({
   story: Story;
   language: Language;
 }) {
-  const text = storyText(story, language);
+  const text = storyText(
+    story,
+    language
+  );
 
   const isRtl =
-    language === "ur" || language === "sd";
+    language === "ur" ||
+    language === "sd";
 
-  const publishedDate = story.published_at
-    ? formatStoryDate(
-        story.published_at,
-        language
-      )
-    : null;
+  const publishedDate =
+    story.published_at
+      ? formatPublishedDate(
+          story.published_at,
+          language
+        )
+      : null;
 
   return (
     <article
@@ -106,7 +89,7 @@ export function StoryCard({
           </span>
 
           <Link
-            aria-label="Read story"
+            aria-label={`Read ${text.title}`}
             href={`/news/${story.slug}?lang=${language}`}
           >
             <ArrowUpRight size={16} />

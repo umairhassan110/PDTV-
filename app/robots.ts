@@ -1,8 +1,12 @@
-import type { MetadataRoute } from "next";
+import type {
+  MetadataRoute,
+} from "next";
 
-export default function robots(): MetadataRoute.Robots {
+export default function robots():
+  MetadataRoute.Robots {
   const base =
-    process.env.NEXT_PUBLIC_SITE_URL ||
+    process.env
+      .NEXT_PUBLIC_SITE_URL ||
     "https://www.pdtv.me";
 
   return {
@@ -10,11 +14,16 @@ export default function robots(): MetadataRoute.Robots {
       {
         userAgent: "*",
         allow: "/",
-        disallow: ["/admin/", "/api/"],
+        disallow: [
+          "/admin/",
+          "/api/",
+        ],
       },
     ],
 
-    sitemap: `${base}/sitemap.xml`,
+    sitemap:
+      `${base}/sitemap.xml`,
+
     host: base,
   };
 }

@@ -67,21 +67,16 @@ export const languageInfo: Record<
   },
 };
 
-/*
- * DEFAULT LANGUAGE = SINDHI
- *
- * no lang -> sd
- * ?lang=en -> English
- * ?lang=ur -> Urdu
- * ?lang=sd -> Sindhi
- */
 export function readLanguage(value?: string): Language {
   if (value === "en") return "en";
   if (value === "ur") return "ur";
   return "sd";
 }
 
-export function storyText(story: Story, lang: Language) {
+export function storyText(
+  story: Story,
+  lang: Language
+) {
   return {
     title: story[`title_${lang}`],
     summary: story[`summary_${lang}`],
@@ -162,4 +157,28 @@ export function categoryText(
     categoryTranslations[category]?.[language] ||
     category
   );
+}
+
+export function languageLocale(
+  language: Language
+) {
+  if (language === "ur") return "ur-PK";
+  if (language === "sd") return "sd-PK";
+  return "en-PK";
+}
+
+export function formatPublishedDate(
+  value: string,
+  language: Language
+) {
+  return new Intl.DateTimeFormat(
+    languageLocale(language),
+    {
+      day: "numeric",
+      month: "long",
+      year: "numeric",
+      hour: "numeric",
+      minute: "2-digit",
+    }
+  ).format(new Date(value));
 }
