@@ -12,6 +12,7 @@ const labels = {
   en: {
     home: "Home",
     pakistan: "Pakistan",
+    sindh: "Sindh",
     world: "World",
     business: "Business",
     sports: "Sports",
@@ -24,6 +25,7 @@ const labels = {
   ur: {
     home: "صفحۂ اول",
     pakistan: "پاکستان",
+    sindh: "سندھ",
     world: "دنیا",
     business: "کاروبار",
     sports: "کھیل",
@@ -36,6 +38,7 @@ const labels = {
   sd: {
     home: "مک صفحو",
     pakistan: "پاڪستان",
+    sindh: "سنڌ",
     world: "دنيا",
     business: "ڪاروبار",
     sports: "رانديون",
@@ -57,19 +60,18 @@ export function SiteHeader({
     language === "en"
       ? "en-PK"
       : language === "ur"
-        ? "ur-PK"
-        : "sd-PK";
+      ? "ur-PK"
+      : "sd-PK";
 
-  const date =
-    new Intl.DateTimeFormat(
-      locale,
-      {
-        weekday: "long",
-        year: "numeric",
-        month: "long",
-        day: "numeric",
-      }
-    ).format(new Date());
+  const date = new Intl.DateTimeFormat(
+    locale,
+    {
+      weekday: "long",
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    }
+  ).format(new Date());
 
   const isRtl =
     language === "ur" ||
@@ -83,7 +85,7 @@ export function SiteHeader({
       >
         <div className="shell utility-inner">
           <span>
-            <Clock3 size={13} />
+            <Clock3 size={14} />
             {date}
           </span>
 
@@ -130,6 +132,12 @@ export function SiteHeader({
               href={`/?lang=${language}&category=Pakistan`}
             >
               {t.pakistan}
+            </Link>
+
+            <Link
+              href={`/?lang=${language}&category=Sindh`}
+            >
+              {t.sindh}
             </Link>
 
             <Link
