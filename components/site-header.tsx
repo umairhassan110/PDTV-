@@ -1,5 +1,8 @@
 import Link from "next/link";
-import { Clock3, Radio } from "lucide-react";
+import {
+  Clock3,
+  Radio,
+} from "lucide-react";
 
 import { Logo } from "@/components/logo";
 import { LanguageSwitcher } from "@/components/language-switcher";
@@ -57,15 +60,20 @@ export function SiteHeader({
         ? "ur-PK"
         : "sd-PK";
 
-  const date = new Intl.DateTimeFormat(locale, {
-    weekday: "long",
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-  }).format(new Date());
+  const date =
+    new Intl.DateTimeFormat(
+      locale,
+      {
+        weekday: "long",
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+      }
+    ).format(new Date());
 
   const isRtl =
-    language === "ur" || language === "sd";
+    language === "ur" ||
+    language === "sd";
 
   return (
     <>
@@ -75,7 +83,7 @@ export function SiteHeader({
       >
         <div className="shell utility-inner">
           <span>
-            <Clock3 size={14} />
+            <Clock3 size={13} />
             {date}
           </span>
 
@@ -94,7 +102,9 @@ export function SiteHeader({
         dir={isRtl ? "rtl" : "ltr"}
       >
         <div className="shell header-main">
-          <Logo language={language} />
+          <Logo
+            language={language}
+          />
 
           <p className="tagline">
             {t.tagline}
@@ -110,7 +120,9 @@ export function SiteHeader({
           aria-label="Main navigation"
         >
           <div className="shell nav-inner">
-            <Link href={`/?lang=${language}`}>
+            <Link
+              href={`/?lang=${language}`}
+            >
               {t.home}
             </Link>
 

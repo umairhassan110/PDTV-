@@ -1,66 +1,59 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
+
 import {
   ArrowLeft,
   CalendarDays,
   UserRound,
 } from "lucide-react";
+
 import { notFound } from "next/navigation";
 
 import { LanguageSwitcher } from "@/components/language-switcher";
 import { Logo } from "@/components/logo";
 import { storyBySlug } from "@/lib/data";
+
 import {
   categoryText,
+  formatPublishedDate,
+  languageLocale,
   readLanguage,
   storyText,
-  type Language,
 } from "@/lib/types";
 
 const SITE_URL =
   process.env.NEXT_PUBLIC_SITE_URL ||
   "https://www.pdtv.me";
 
-function getLocale(language: Language) {
-  if (language === "ur") return "ur-PK";
-  if (language === "sd") return "sd-PK";
-  return "en-PK";
-}
-
-function formatDate(
-  value: string,
-  language: Language
-) {
-  return new Intl.DateTimeFormat(
-    getLocale(language),
-    {
-      day: "numeric",
-      month: "long",
-      year: "numeric",
-      hour: "numeric",
-      minute: "2-digit",
-    }
-  ).format(new Date(value));
-}
-
 export async function generateMetadata({
   params,
   searchParams,
 }: {
-  params: Promise<{ slug: string }>;
-  searchParams: Promise<{ lang?: string }>;
-}): Promise<Metadata> {
-  const { slug } = await params;
-  const lang = readLanguage(
-    (await searchParams).lang
-  );
+  params: Promise<{
+    slug: string;
+  }>;
 
-  const story = await storyBySlug(slug);
+  searchParams: Promise<{
+    lang?: string;
+  }>;
+}): Promise<Metadata> {
+  const { slug } =
+    await params;
+
+  const lang =
+    readLanguage(
+      (await searchParams).lang
+    );
+
+  const story =
+    await storyBySlug(slug);
 
   if (!story) {
     return {
-      title: "Story not found | PDTV",
+      title:
+        "Story not found | PDTV",
+
       robots: {
         index: false,
         follow: false,
@@ -68,7 +61,11 @@ export async function generateMetadata({
     };
   }
 
-  const text = storyText(story, lang);
+  const text =
+    storyText(
+      story,
+      lang
+    );
 
   const canonicalUrl =
     `${SITE_URL}/news/${story.slug}?lang=${lang}`;
@@ -82,11 +79,18 @@ export async function generateMetadata({
     description: text.summary,
 
     alternates: {
-      canonical: canonicalUrl,
+      canonical:
+        canonicalUrl,
+
       languages: {
-        en: `${SITE_URL}/news/${story.slug}?lang=en`,
-        ur: `${SITE_URL}/news/${story.slug}?lang=ur`,
-        sd: `${SITE_URL}/news/${story.slug}?lang=sd`,
+        en:
+          `${SITE_URL}/news/${story.slug}?lang=en`,
+
+        ur:
+          `${SITE_URL}/news/${story.slug}?lang=ur`,
+
+        sd:
+          `${SITE_URL}/news/${story.slug}?lang=sd`,
       },
     },
 
@@ -94,34 +98,78 @@ export async function generateMetadata({
       type: "article",
       url: canonicalUrl,
       siteName: "PDTV",
-      title: text.title,
-      description: text.summary,
+
+      title:
+        text.title,
+
+      description:
+        text.summary,
+
       images: [
         {
           url: image,
           alt: text.title,
         },
       ],
+
       publishedTime:
-        story.published_at || undefined,
+        story.published_at ||
+        undefined,
+
       modifiedTime:
-        story.updated_at || undefined,
-      authors: [story.author],
-      section: story.category,
+        story.updated_at ||
+        undefined,
+
+      authors: [
+        story.author,
+      ],
+
+      section:
+        categoryText(
+          story.category,
+          lang
+        ),
     },
 
     twitter: {
-      card: "summary_large_image",
-      title: text.title,
-      description: text.summary,
+      card:
+        "summary_large_image",
+
+      title:
+        text.title,
+
+      description:
+        text.summary,
+
       images: [image],
     },
 
     robots: {
       index:
-        story.status === "published",
+        story.status ===
+        "published",
+
       follow:
-        story.status === "published",
+        story.status ===
+        "published",
+
+      googleBot: {
+        index:
+          story.status ===
+          "published",
+
+        follow:
+          story.status ===
+          "published",
+
+        "max-image-preview":
+          "large",
+
+        "max-snippet": -1,
+
+        "max-video-preview":
+          -1,
+      },
     },
   };
 }
@@ -130,25 +178,34 @@ export default async function NewsPage({
   params,
   searchParams,
 }: {
-  params: Promise<{ slug: string }>;
-  searchParams: Promise<{ lang?: string }>;
+  params: Promise<{
+    slug: string;
+  }>;
+
+  searchParams: Promise<{
+    lang?: string;
+  }>;
 }) {
-  const { slug } = await params;
+  const { slug } =
+    await params;
 
-  const lang = readLanguage(
-    (await searchParams).lang
-  );
+  const lang =
+    readLanguage(
+      (await searchParams).lang
+    );
 
-  const story = await storyBySlug(slug);
+  const story =
+    await storyBySlug(slug);
 
   if (!story) {
     notFound();
   }
 
-  const text = storyText(
-    story,
-    lang
-  );
+  const text =
+    storyText(
+      story,
+      lang
+    );
 
   const isRtl =
     lang === "ur" ||
@@ -161,23 +218,29 @@ export default async function NewsPage({
     story.image_url ||
     `${SITE_URL}/pdtv-logo.png`;
 
-  const publishedDate =
-    story.published_at
-      ? formatDate(
-          story.published_at,
-          lang
-        )
-      : null;
+  const wordCount =
+    text.body
+      .trim()
+      .split(/\s+/)
+      .filter(Boolean)
+      .length;
 
   const structuredData = {
-    "@context": "https://schema.org",
-    "@type": "NewsArticle",
+    "@context":
+      "https://schema.org",
 
-    headline: text.title,
+    "@type":
+      "NewsArticle",
 
-    description: text.summary,
+    headline:
+      text.title,
 
-    image: [articleImage],
+    description:
+      text.summary,
+
+    image: [
+      articleImage,
+    ],
 
     datePublished:
       story.published_at ||
@@ -189,25 +252,41 @@ export default async function NewsPage({
       story.created_at,
 
     author: {
-      "@type": "Person",
-      name: story.author,
+      "@type":
+        "Organization",
+
+      name:
+        story.author,
+
+      url:
+        SITE_URL,
     },
 
     publisher: {
-      "@type": "Organization",
+      "@type":
+        "NewsMediaOrganization",
+
       name:
         "PDTV Pakistan Diamond Television",
 
+      url:
+        SITE_URL,
+
       logo: {
-        "@type": "ImageObject",
+        "@type":
+          "ImageObject",
+
         url:
           `${SITE_URL}/pdtv-logo.png`,
       },
     },
 
     mainEntityOfPage: {
-      "@type": "WebPage",
-      "@id": canonicalUrl,
+      "@type":
+        "WebPage",
+
+      "@id":
+        canonicalUrl,
     },
 
     articleSection:
@@ -217,11 +296,12 @@ export default async function NewsPage({
       ),
 
     inLanguage:
-      lang === "en"
-        ? "en-PK"
-        : lang === "ur"
-          ? "ur-PK"
-          : "sd-PK",
+      languageLocale(lang),
+
+    wordCount,
+
+    isAccessibleForFree:
+      true,
   };
 
   return (
@@ -293,16 +373,23 @@ export default async function NewsPage({
 
         <div className="article-meta">
           <span>
-            <UserRound size={15} />
+            <UserRound
+              size={15}
+            />
+
             {story.author}
           </span>
 
-          {publishedDate && (
+          {story.published_at && (
             <span>
               <CalendarDays
                 size={15}
               />
-              {publishedDate}
+
+              {formatPublishedDate(
+                story.published_at,
+                lang
+              )}
             </span>
           )}
         </div>
@@ -318,6 +405,7 @@ export default async function NewsPage({
               }
               fill
               priority
+              fetchPriority="high"
               sizes="(max-width: 900px) 100vw, 900px"
             />
           </div>
@@ -328,7 +416,8 @@ export default async function NewsPage({
             .split(/\n+/)
             .filter(
               (paragraph) =>
-                paragraph.trim()
+                paragraph
+                  .trim()
                   .length > 0
             )
             .map(
@@ -365,6 +454,10 @@ export default async function NewsPage({
           </div>
 
           <p>
+            ©{" "}
+            {new Date().getFullYear()}{" "}
+            PDTV.{" "}
+
             {lang === "en"
               ? "Pakistan Ki Awaaz, Duniya Tak."
               : lang === "ur"

@@ -30,13 +30,16 @@ export function Logo({
   const text = brandText[language];
 
   const isRtl =
-    language === "ur" || language === "sd";
+    language === "ur" ||
+    language === "sd";
 
   return (
     <Link
       href={`/?lang=${language}`}
       className={`brand ${
-        isRtl ? "brand-rtl" : "brand-ltr"
+        isRtl
+          ? "brand-rtl"
+          : "brand-ltr"
       }`}
       aria-label="PDTV home"
       dir={isRtl ? "rtl" : "ltr"}
@@ -46,14 +49,23 @@ export function Logo({
         alt="PDTV HD News"
         width={compact ? 68 : 100}
         height={compact ? 40 : 56}
-        priority
+        sizes={
+          compact
+            ? "68px"
+            : "100px"
+        }
         className="pdtv-logo-image"
       />
 
       {!compact && (
         <span className="brand-copy">
-          <strong>{text.short}</strong>
-          <small>{text.full}</small>
+          <strong>
+            {text.short}
+          </strong>
+
+          <small>
+            {text.full}
+          </small>
         </span>
       )}
     </Link>

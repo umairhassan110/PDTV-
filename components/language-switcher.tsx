@@ -18,42 +18,69 @@ export function LanguageSwitcher({
 }) {
   const router = useRouter();
   const pathname = usePathname();
-  const searchParams = useSearchParams();
+  const searchParams =
+    useSearchParams();
 
-  function changeLanguage(next: Language) {
-    const query = new URLSearchParams(
-      searchParams.toString()
-    );
+  function changeLanguage(
+    next: Language
+  ) {
+    if (next === language) {
+      return;
+    }
+
+    const query =
+      new URLSearchParams(
+        searchParams.toString()
+      );
 
     query.set("lang", next);
 
-    const nextUrl = `${pathname}?${query.toString()}`;
+    const nextUrl =
+      `${pathname}?${query.toString()}`;
 
-    router.push(nextUrl, {
-      scroll: false,
-    });
+    router.push(
+      nextUrl,
+      {
+        scroll: false,
+      }
+    );
   }
 
   return (
     <div
       className="language-switcher"
+      role="group"
       aria-label="Select language"
     >
-      {(Object.keys(languageInfo) as Language[]).map(
-        (code) => (
-          <button
-            key={code}
-            type="button"
-            className={
-              language === code ? "active" : ""
-            }
-            onClick={() => changeLanguage(code)}
-            aria-pressed={language === code}
-          >
-            {languageInfo[code].native}
-          </button>
-        )
-      )}
+      {(
+        Object.keys(
+          languageInfo
+        ) as Language[]
+      ).map((code) => (
+        <button
+          key={code}
+          type="button"
+          className={
+            language === code
+              ? "active"
+              : ""
+          }
+          onClick={() =>
+            changeLanguage(code)
+          }
+          aria-pressed={
+            language === code
+          }
+          aria-label={
+            languageInfo[code].label
+          }
+        >
+          {
+            languageInfo[code]
+              .native
+          }
+        </button>
+      ))}
     </div>
   );
 }

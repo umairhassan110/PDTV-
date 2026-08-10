@@ -38,12 +38,9 @@ const ui = {
     liveNow: "LIVE",
     pdtvLive: "PDTV LIVE",
     brand: "PDTV",
-    fullName:
-      "Pakistan Diamond Television",
-    copyright:
-      "Pakistan Ki Awaaz, Duniya Tak.",
-    seoTitle:
-      "PDTV | Latest Pakistan & Sindh News",
+    fullName: "Pakistan Diamond Television",
+    copyright: "Pakistan Ki Awaaz, Duniya Tak.",
+    seoTitle: "PDTV | Latest Pakistan & Sindh News",
     seoDescription:
       "Latest breaking news from Pakistan, Sindh and around the world in English.",
   },
@@ -61,10 +58,8 @@ const ui = {
     liveNow: "لائیو",
     pdtvLive: "پی ڈی ٹی وی لائیو",
     brand: "پی ڈی ٹی وی",
-    fullName:
-      "پاکستان ڈائمنڈ ٹیلی وژن",
-    copyright:
-      "پاکستان کی آواز، دنیا تک۔",
+    fullName: "پاکستان ڈائمنڈ ٹیلی وژن",
+    copyright: "پاکستان کی آواز، دنیا تک۔",
     seoTitle:
       "پی ڈی ٹی وی | پاکستان اور سندھ کی تازہ خبریں",
     seoDescription:
@@ -84,10 +79,8 @@ const ui = {
     liveNow: "لائيو",
     pdtvLive: "پي ڊي ٽي وي لائيو",
     brand: "پي ڊي ٽي وي",
-    fullName:
-      "پاڪستان ڊائمنڊ ٽيليويزن",
-    copyright:
-      "پاڪستان جو آواز، دنيا تائين۔",
+    fullName: "پاڪستان ڊائمنڊ ٽيليويزن",
+    copyright: "پاڪستان جو آواز، دنيا تائين۔",
     seoTitle:
       "پي ڊي ٽي وي | پاڪستان ۽ سنڌ جون تازيون خبرون",
     seoDescription:
@@ -104,17 +97,14 @@ export async function generateMetadata({
   }>;
 }): Promise<Metadata> {
   const params = await searchParams;
-  const language =
-    readLanguage(params.lang);
-
+  const language = readLanguage(params.lang);
   const t = ui[language];
 
-  const canonical =
-    params.category
-      ? `${SITE_URL}/?lang=${language}&category=${encodeURIComponent(
-          params.category
-        )}`
-      : `${SITE_URL}/?lang=${language}`;
+  const canonical = params.category
+    ? `${SITE_URL}/?lang=${language}&category=${encodeURIComponent(
+        params.category
+      )}`
+    : `${SITE_URL}/?lang=${language}`;
 
   return {
     title: t.seoTitle,
@@ -138,8 +128,7 @@ export async function generateMetadata({
       images: [
         {
           url: `${SITE_URL}/pdtv-logo.png`,
-          alt:
-            "PDTV Pakistan Diamond Television",
+          alt: "PDTV Pakistan Diamond Television",
         },
       ],
     },
@@ -148,9 +137,7 @@ export async function generateMetadata({
       card: "summary_large_image",
       title: t.seoTitle,
       description: t.seoDescription,
-      images: [
-        `${SITE_URL}/pdtv-logo.png`,
-      ],
+      images: [`${SITE_URL}/pdtv-logo.png`],
     },
   };
 }
@@ -175,14 +162,13 @@ export default async function Home({
   const stories =
     await publishedStories();
 
-  const filtered =
-    params.category
-      ? stories.filter(
-          (story) =>
-            story.category ===
-            params.category
-        )
-      : stories;
+  const filtered = params.category
+    ? stories.filter(
+        (story) =>
+          story.category ===
+          params.category
+      )
+    : stories;
 
   const lead =
     filtered.find(
@@ -204,13 +190,7 @@ export default async function Home({
   const t = ui[language];
 
   return (
-    <div
-      dir={
-        isRtl
-          ? "rtl"
-          : "ltr"
-      }
-    >
+    <div dir={isRtl ? "rtl" : "ltr"}>
       <SiteHeader
         language={language}
       />
@@ -255,6 +235,7 @@ export default async function Home({
                     }
                     fill
                     priority
+                    fetchPriority="high"
                     sizes="(max-width: 950px) 100vw, 66vw"
                   />
                 ) : (
@@ -344,7 +325,11 @@ export default async function Home({
               <b>{t.liveNow}</b>
             </div>
 
-            <div className="live-screen">
+            <Link
+              className="live-screen"
+              href={`/live?lang=${language}`}
+              aria-label={t.pdtvLive}
+            >
               <Play
                 size={46}
                 fill="currentColor"
@@ -353,7 +338,7 @@ export default async function Home({
               <span>
                 {t.pdtvLive}
               </span>
-            </div>
+            </Link>
 
             <div className="mini-list">
               {stories
@@ -419,18 +404,14 @@ export default async function Home({
                     <StoryCard
                       key={story.id}
                       story={story}
-                      language={
-                        language
-                      }
+                      language={language}
                     />
                   )
                 )}
               </div>
 
               <aside className="most-read">
-                <h3>
-                  {t.most}
-                </h3>
+                <h3>{t.most}</h3>
 
                 {stories
                   .slice(0, 5)
@@ -477,11 +458,7 @@ export default async function Home({
       </main>
 
       <footer
-        dir={
-          isRtl
-            ? "rtl"
-            : "ltr"
-        }
+        dir={isRtl ? "rtl" : "ltr"}
       >
         <div className="shell footer-inner">
           <div>
