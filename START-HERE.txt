@@ -1,0 +1,49 @@
+PDTV AI NEWSROOM — FINAL ONE-TIME ACTIVATION
+=============================================
+
+Code integration is already included. Do only these account-side steps once:
+
+1) SUPABASE
+   Supabase Dashboard -> SQL Editor
+   Open and run:
+   supabase/migrations/002_ai_newsroom.sql
+
+2) GEMINI + VERCEL
+   Create a free Gemini API key in Google AI Studio.
+   In Vercel -> Project -> Settings -> Environment Variables, keep your existing PDTV variables and add:
+
+   GEMINI_API_KEY=<your key>
+   GEMINI_MODEL=gemini-3.1-flash-lite
+   CRON_SECRET=<a long random secret>
+   MAX_AI_STORIES_PER_RUN=4
+
+   Redeploy after saving variables.
+
+3) GITHUB AUTOMATION
+   GitHub repo -> Settings -> Secrets and variables -> Actions
+   Add:
+
+   PDTV_SITE_URL=https://YOUR-FINAL-PDTV-DOMAIN
+   PDTV_CRON_SECRET=<exactly the same value as Vercel CRON_SECRET>
+
+   The included .github/workflows/ai-newsroom.yml runs hourly.
+
+FIRST TEST
+==========
+Open:
+/admin/ai-newsroom
+
+Press:
+Collect & prepare now
+
+Then preview a draft and use:
+Approve & Publish
+
+NORMAL DAILY USE
+================
+News collection, clustering, source-evidence checks, AI writing, English/Urdu/Sindhi, similarity-risk checking, auto-rewrite attempt, and license-checked Wikimedia image selection are automatic.
+You only review and approve/reject.
+
+SECURITY
+========
+Never commit .env.local, SUPABASE_SERVICE_ROLE_KEY, GEMINI_API_KEY or CRON_SECRET to GitHub.

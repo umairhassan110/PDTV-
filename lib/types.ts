@@ -19,6 +19,12 @@ export type Story = {
   category: string;
   author: string;
   image_url: string | null;
+  image_credit?: string | null;
+  image_source_url?: string | null;
+  image_license?: string | null;
+  image_license_url?: string | null;
+  image_is_illustrative?: boolean;
+  source_links?: Array<{ name: string; url: string; headline?: string; published_at?: string | null }>;
 
   status: "draft" | "published";
 

@@ -5,6 +5,7 @@ import Link from "next/link";
 import {
   ArrowLeft,
   CalendarDays,
+  ExternalLink,
   UserRound,
 } from "lucide-react";
 
@@ -302,6 +303,9 @@ export default async function NewsPage({
 
     isAccessibleForFree:
       true,
+
+    citation:
+      story.source_links?.map((source) => source.url) || [],
   };
 
   return (
@@ -395,20 +399,32 @@ export default async function NewsPage({
         </div>
 
         {story.image_url && (
-          <div className="article-image">
-            <Image
-              src={
-                story.image_url
-              }
-              alt={
-                text.title
-              }
-              fill
-              priority
-              fetchPriority="high"
-              sizes="(max-width: 900px) 100vw, 900px"
-            />
-          </div>
+          <>
+            <div className="article-image">
+              <Image
+                src={
+                  story.image_url
+                }
+                alt={
+                  text.title
+                }
+                fill
+                priority
+                fetchPriority="high"
+                sizes="(max-width: 900px) 100vw, 900px"
+              />
+            </div>
+            {(story.image_credit || story.image_license) && (
+              <p className="article-image-credit">
+                {story.image_is_illustrative && (lang === "en" ? "Illustrative image · " : lang === "ur" ? "نمائشی تصویر · " : "نمائشي تصوير · ")}
+                {story.image_credit || "Wikimedia Commons"}
+                {story.image_license ? <> · {story.image_license_url ? <a href={story.image_license_url} target="_blank" rel="noreferrer">{story.image_license}</a> : story.image_license}</> : null}
+                {story.image_source_url && (
+                  <> · <a href={story.image_source_url} target="_blank" rel="noreferrer">{lang === "en" ? "image source" : lang === "ur" ? "تصویر کا ماخذ" : "تصوير جو ذريعو"} <ExternalLink size={11} /></a></>
+                )}
+              </p>
+            )}
+          </>
         )}
 
         <article className="article-body">
@@ -431,6 +447,21 @@ export default async function NewsPage({
               )
             )}
         </article>
+
+        {story.source_links && story.source_links.length > 0 && (
+          <section className="article-sources">
+            <h2>{lang === "en" ? "Sources used for verification" : lang === "ur" ? "تصدیق کے لیے استعمال کیے گئے ذرائع" : "تصديق لاءِ استعمال ڪيل ذريعا"}</h2>
+            <p>{lang === "en" ? "PDTV independently rewrites verified facts; these links show the reporting used to cross-check the story." : lang === "ur" ? "پی ڈی ٹی وی تصدیق شدہ حقائق کو اپنی تحریر میں پیش کرتا ہے؛ یہ لنکس خبر کی جانچ کے لیے استعمال ہوئے۔" : "پي ڊي ٽي وي تصديق ٿيل حقيقتن کي پنهنجي لفظن ۾ پيش ڪري ٿو؛ هي لنڪس خبر جي جاچ لاءِ استعمال ٿيا۔"}</p>
+            <div>
+              {story.source_links.slice(0, 6).map((source, index) => (
+                <a key={`${source.url}-${index}`} href={source.url} target="_blank" rel="noreferrer">
+                  <span>{source.name}</span>
+                  <ExternalLink size={13} />
+                </a>
+              ))}
+            </div>
+          </section>
+        )}
       </main>
 
       <footer>
