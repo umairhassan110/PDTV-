@@ -4,6 +4,7 @@ import { compactText, decodeHtml, normalizeTitle, stripHtml } from "@/lib/ai-new
 import type { AiNewsCategory, NewsCluster, NewsSourceItem } from "@/lib/ai-news/types";
 
 const USER_AGENT = "PDTV-Newsroom/1.0 (+https://www.pdtv.me)";
+const GOOGLE_LOCALE = "hl=en-PK&gl=PK&ceid=PK:en";
 const DAY_MS = 24 * 60 * 60 * 1000;
 const STOPWORDS = new Set([
   "the", "a", "an", "and", "or", "of", "to", "in", "on", "for", "from", "with", "at", "by", "as", "is", "are", "was", "were", "be", "has", "have", "had", "will", "after", "before", "over", "amid", "new", "latest", "says", "say", "report", "reports", "news", "live",
@@ -60,6 +61,20 @@ function safeDomain(url: string) {
   } catch {
     return undefined;
   }
+}
+
+function sourceIdentity(item: NewsSourceItem) {
+  return (item.domain || item.source).toLowerCase().replace(/^www\./, "").trim();
+}
+
+function uniqueSources(items: NewsSourceItem[]) {
+  const seen = new Set<string>();
+  return items.filter((item) => {
+    const key = sourceIdentity(item);
+    if (!key || seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
 }
 
 async function collectGoogleRss() {
@@ -131,12 +146,17 @@ function jaccard(a: string, b: string) {
   return intersection / (aa.size + bb.size - intersection);
 }
 
+function sharedTokenCount(a: string, b: string) {
+  const aa = new Set(tokens(a));
+  return new Set(tokens(b).filter((word) => aa.has(word))).size;
+}
+
 function dedupe(items: NewsSourceItem[]) {
   const seen = new Set<string>();
   const cutoff = Date.now() - 2 * DAY_MS;
   return items.filter((item) => {
     if (item.publishedAt && Date.parse(item.publishedAt) < cutoff) return false;
-    const key = `${normalizeTitle(item.title)}|${item.source.toLowerCase()}`;
+    const key = `${normalizeTitle(item.title)}|${sourceIdentity(item)}`;
     if (!normalizeTitle(item.title) || seen.has(key)) return false;
     seen.add(key);
     return true;
@@ -172,14 +192,14 @@ export function clusterItems(allItems: NewsSourceItem[]): NewsCluster[] {
     for (const item of items.sort((a, b) => (Date.parse(b.publishedAt || "") || 0) - (Date.parse(a.publishedAt || "") || 0))) {
       const existing = categoryClusters.find((cluster) => cluster.some((member) => jaccard(member.title, item.title) >= 0.42));
       if (existing) {
-        if (!existing.some((member) => member.source.toLowerCase() === item.source.toLowerCase())) existing.push(item);
+        if (!existing.some((member) => sourceIdentity(member) === sourceIdentity(item))) existing.push(item);
       } else {
         categoryClusters.push([item]);
       }
     }
 
     for (const itemsInCluster of categoryClusters) {
-      const distinctSources = new Set(itemsInCluster.map((item) => item.source.toLowerCase())).size;
+      const distinctSources = uniqueSources(itemsInCluster).length;
       const newest = itemsInCluster
         .map((item) => item.publishedAt)
         .filter(Boolean)
@@ -191,14 +211,18 @@ export function clusterItems(allItems: NewsSourceItem[]): NewsCluster[] {
         category,
         representativeTitle: itemsInCluster[0].title,
         fingerprint: fingerprint(category, itemsInCluster),
-        items: itemsInCluster.slice(0, 6),
+        items: uniqueSources(itemsInCluster).slice(0, 6),
         newestAt: newest,
         score,
       });
     }
   }
 
-  const priority: Record<AiNewsCategory, number> = { Sindh: 6, Sports: 5, Technology: 5, Business: 5, Pakistan: 4, World: 1 };
+  // Topic-first categories beat geography. Pakistan beats Sindh for national,
+  // federal or international stories that merely mention Karachi/Sindh.
+  const priority: Record<AiNewsCategory, number> = {
+    Sports: 7, Technology: 7, Business: 7, Pakistan: 5, Sindh: 4, World: 2,
+  };
   const sorted = clusters.sort((a, b) => b.score - a.score);
   const unique: NewsCluster[] = [];
   for (const cluster of sorted) {
@@ -208,9 +232,18 @@ export function clusterItems(allItems: NewsSourceItem[]): NewsCluster[] {
       continue;
     }
     const existing = unique[duplicateIndex];
-    if (priority[cluster.category] > priority[existing.category] || (priority[cluster.category] === priority[existing.category] && cluster.score > existing.score)) {
-      unique[duplicateIndex] = cluster;
-    }
+    const winner = priority[cluster.category] > priority[existing.category]
+      ? cluster
+      : priority[cluster.category] < priority[existing.category]
+        ? existing
+        : cluster.score > existing.score ? cluster : existing;
+    const mergedItems = uniqueSources([...existing.items, ...cluster.items]).slice(0, 8);
+    unique[duplicateIndex] = {
+      ...winner,
+      items: mergedItems,
+      fingerprint: fingerprint(winner.category, mergedItems),
+      score: Math.max(existing.score, cluster.score) + Math.min(12, mergedItems.length * 2),
+    };
   }
   return unique.sort((a, b) => b.score - a.score);
 }
@@ -218,6 +251,22 @@ export function clusterItems(allItems: NewsSourceItem[]): NewsCluster[] {
 export async function discoverNews() {
   const [gdelt, google] = await Promise.all([collectGdelt(), collectGoogleRss()]);
   return clusterItems([...gdelt, ...google]);
+}
+
+async function findCorroboratingSources(cluster: NewsCluster) {
+  const queryWords = tokens(cluster.representativeTitle).slice(0, 7);
+  if (queryWords.length < 2) return [];
+  const query = `${queryWords.join(" ")} when:2d`;
+  try {
+    const response = await fetchWithTimeout(`https://news.google.com/rss/search?q=${encodeURIComponent(query)}&${GOOGLE_LOCALE}`, 8000);
+    if (!response.ok) return [];
+    return parseGoogleRss(await response.text(), cluster.category).filter((item) => {
+      const similarity = jaccard(cluster.representativeTitle, item.title);
+      return similarity >= 0.28 || sharedTokenCount(cluster.representativeTitle, item.title) >= 3;
+    });
+  } catch {
+    return [];
+  }
 }
 
 function metaContent(html: string, key: string) {
@@ -234,7 +283,12 @@ function metaContent(html: string, key: string) {
 }
 
 export async function enrichCluster(cluster: NewsCluster) {
-  const items = cluster.items.slice(0, 4);
+  let sourceItems = uniqueSources(cluster.items);
+  if (sourceItems.length < 3) {
+    const corroborating = await findCorroboratingSources(cluster);
+    sourceItems = uniqueSources([...sourceItems, ...corroborating]);
+  }
+  const items = sourceItems.slice(0, 5);
   const settled = await Promise.allSettled(items.map(async (item) => {
     let evidence = compactText(item.description || item.title, 900);
     if (item.origin === "gdelt") {

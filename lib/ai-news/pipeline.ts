@@ -20,7 +20,12 @@ async function recentFingerprints() {
 }
 
 function selectClusters(clusters: NewsCluster[], existing: Set<string>) {
-  const candidates = clusters.filter((cluster) => !existing.has(cluster.fingerprint));
+  const candidates = clusters
+    .filter((cluster) => !existing.has(cluster.fingerprint))
+    .sort((a, b) => {
+      const sourceDelta = Math.min(3, b.items.length) - Math.min(3, a.items.length);
+      return sourceDelta !== 0 ? sourceDelta : b.score - a.score;
+    });
   const picked: NewsCluster[] = [];
   const halfHour = Math.floor(Date.now() / (30 * 60 * 1000));
   const rotation = halfHour % AI_NEWS_CATEGORIES.length;
@@ -54,7 +59,7 @@ async function insertDraft(
   const draftId = crypto.randomUUID();
   const image = await findLicensedImage(finalStory.image_query);
   const imageUrl = image ? await cacheLicensedImage(image, draftId) : null;
-  const independentSources = new Set(evidence.map((item) => item.source.toLowerCase())).size;
+  const independentSources = new Set(evidence.map((item) => (item.domain || item.source).toLowerCase().replace(/^www\./, ""))).size;
   const sourceScoreCap = independentSources >= 3 ? 96 : independentSources === 2 ? 88 : 60;
   const verificationScore = Math.min(finalStory.verification_score, sourceScoreCap);
   const riskFlags = [
