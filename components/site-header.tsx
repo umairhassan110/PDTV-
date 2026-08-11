@@ -70,6 +70,7 @@ export function SiteHeader({
       year: "numeric",
       month: "long",
       day: "numeric",
+      timeZone: "Asia/Karachi",
     }
   ).format(new Date());
 

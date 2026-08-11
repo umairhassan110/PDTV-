@@ -185,6 +185,7 @@ export function formatPublishedDate(
       year: "numeric",
       hour: "numeric",
       minute: "2-digit",
+      timeZone: "Asia/Karachi",
     }
   ).format(new Date(value));
 }
