@@ -82,7 +82,11 @@ export function readLanguage(value?: string): Language {
 export function storyText(
   story: Story,
   lang: Language
-) {
+): {
+  title: string;
+  summary: string;
+  body: string;
+} {
   return {
     title: story[`title_${lang}`],
     summary: story[`summary_${lang}`],
@@ -158,16 +162,16 @@ const categoryTranslations: Record<
 export function categoryText(
   category: string,
   language: Language
-) {
+): string {
   return (
-    categoryTranslations[category]?.[language] ||
+    categoryTranslations[category]?.[language] ??
     category
   );
 }
 
 export function languageLocale(
   language: Language
-) {
+): string {
   if (language === "ur") return "ur-PK";
   if (language === "sd") return "sd-PK";
   return "en-PK";
@@ -176,7 +180,7 @@ export function languageLocale(
 export function formatPublishedDate(
   value: string,
   language: Language
-) {
+): string {
   return new Intl.DateTimeFormat(
     languageLocale(language),
     {

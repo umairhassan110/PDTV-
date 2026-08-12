@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+
 import {
   ArrowUpRight,
   CalendarDays,
@@ -20,22 +21,21 @@ export function StoryCard({
   story: Story;
   language: Language;
 }) {
-  const text = storyText(
-    story,
-    language
-  );
+  const text = storyText(story, language);
 
   const isRtl =
     language === "ur" ||
     language === "sd";
 
-  const publishedDate =
-    story.published_at
-      ? formatPublishedDate(
-          story.published_at,
-          language
-        )
-      : null;
+  const publishedDate = story.published_at
+    ? formatPublishedDate(
+        story.published_at,
+        language
+      )
+    : null;
+
+  const href =
+    `/news/${story.slug}?lang=${language}`;
 
   return (
     <article
@@ -44,7 +44,7 @@ export function StoryCard({
     >
       <Link
         className="story-image"
-        href={`/news/${story.slug}?lang=${language}`}
+        href={href}
       >
         {story.image_url ? (
           <Image
@@ -69,9 +69,7 @@ export function StoryCard({
 
       <div className="story-content">
         <h3>
-          <Link
-            href={`/news/${story.slug}?lang=${language}`}
-          >
+          <Link href={href}>
             {text.title}
           </Link>
         </h3>
@@ -90,7 +88,7 @@ export function StoryCard({
 
           <Link
             aria-label={`Read ${text.title}`}
-            href={`/news/${story.slug}?lang=${language}`}
+            href={href}
           >
             <ArrowUpRight size={16} />
           </Link>

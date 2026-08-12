@@ -36,26 +36,21 @@ const securityHeaders = [
 
   {
     key: "Referrer-Policy",
-    value:
-      "strict-origin-when-cross-origin",
+    value: "strict-origin-when-cross-origin",
   },
 
   {
-    key:
-      "Cross-Origin-Opener-Policy",
+    key: "Cross-Origin-Opener-Policy",
     value: "same-origin",
   },
 
   {
     key: "Permissions-Policy",
-    value:
-      "camera=(), microphone=(), geolocation=()",
+    value: "camera=(), microphone=(), geolocation=()",
   },
 
   {
-    key:
-      "Strict-Transport-Security",
-
+    key: "Strict-Transport-Security",
     value:
       "max-age=63072000; includeSubDomains",
   },
@@ -83,8 +78,7 @@ const nextConfig: NextConfig = {
     return [
       {
         source: "/(.*)",
-        headers:
-          securityHeaders,
+        headers: securityHeaders,
       },
     ];
   },

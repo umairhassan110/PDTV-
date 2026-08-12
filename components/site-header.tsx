@@ -1,4 +1,5 @@
 import Link from "next/link";
+
 import {
   Clock3,
   Radio,
@@ -47,7 +48,7 @@ const labels = {
     live: "لائيو",
     tagline: "پاڪستان جو آواز، دنيا تائين",
   },
-};
+} as const;
 
 export function SiteHeader({
   language,
@@ -60,8 +61,8 @@ export function SiteHeader({
     language === "en"
       ? "en-PK"
       : language === "ur"
-      ? "ur-PK"
-      : "sd-PK";
+        ? "ur-PK"
+        : "sd-PK";
 
   const date = new Intl.DateTimeFormat(
     locale,
@@ -105,9 +106,7 @@ export function SiteHeader({
         dir={isRtl ? "rtl" : "ltr"}
       >
         <div className="shell header-main">
-          <Logo
-            language={language}
-          />
+          <Logo language={language} />
 
           <p className="tagline">
             {t.tagline}

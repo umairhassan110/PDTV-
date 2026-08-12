@@ -2,6 +2,8 @@
   "name": "pdtv-vercel",
   "version": "0.1.0",
   "private": true,
+  "type": "module",
+  "displayName": "PDTV Pakistan Diamond Television",
   "engines": {
     "node": ">=22.13.0"
   },
@@ -27,7 +29,5 @@
     "eslint": "9.39.4",
     "eslint-config-next": "16.2.6",
     "typescript": "5.9.3"
-  },
-  "type": "module",
-  "displayName": "PDTV Pakistan Diamond Television"
+  }
 }

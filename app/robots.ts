@@ -1,12 +1,8 @@
-import type {
-  MetadataRoute,
-} from "next";
+import type { MetadataRoute } from "next";
 
-export default function robots():
-  MetadataRoute.Robots {
+export default function robots(): MetadataRoute.Robots {
   const base =
-    process.env
-      .NEXT_PUBLIC_SITE_URL ||
+    process.env.NEXT_PUBLIC_SITE_URL ??
     "https://www.pdtv.me";
 
   return {
@@ -21,8 +17,7 @@ export default function robots():
       },
     ],
 
-    sitemap:
-      `${base}/sitemap.xml`,
+    sitemap: `${base}/sitemap.xml`,
 
     host: base,
   };
