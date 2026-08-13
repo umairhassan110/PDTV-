@@ -1,12 +1,18 @@
 import { redirect } from "next/navigation";
-import { createAdminClient } from "@/lib/supabase/admin";
+import { createAdminClient, getSupabaseConfigError, hasSupabaseAnonConfig } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 import type { Profile } from "@/lib/types";
 
 export async function currentUser() {
-  const supabase = await createClient();
-  const { data } = await supabase.auth.getUser();
-  return data.user;
+  if (!hasSupabaseAnonConfig()) return null;
+
+  try {
+    const supabase = await createClient();
+    const { data } = await supabase.auth.getUser();
+    return data.user;
+  } catch {
+    return null;
+  }
 }
 
 export async function ensureProfile(): Promise<Profile | null> {
@@ -55,6 +61,10 @@ export async function ensureProfile(): Promise<Profile | null> {
 }
 
 export async function requireStaff(): Promise<Profile> {
+  if (!hasSupabaseAnonConfig()) {
+    redirect("/admin/login?error=" + encodeURIComponent(getSupabaseConfigError()));
+  }
+
   const user = await currentUser();
   if (!user) redirect("/admin/login");
   const profile = await ensureProfile();

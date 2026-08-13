@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 import { ensureProfile, requireOwner, requireStaff } from "@/lib/auth";
-import { createAdminClient } from "@/lib/supabase/admin";
+import { createAdminClient, getSupabaseConfigError, hasSupabaseAdminConfig, hasSupabaseAnonConfig } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 
 function value(formData: FormData, key: string) {
@@ -21,6 +21,7 @@ const credentials = z.object({
 });
 
 export async function loginAction(formData: FormData) {
+  if (!hasSupabaseAnonConfig()) redirect("/admin/login?error=" + safeMessage(getSupabaseConfigError()));
   const parsed = credentials.safeParse({ email: value(formData, "email").toLowerCase(), password: value(formData, "password") });
   if (!parsed.success) redirect("/admin/login?error=" + safeMessage("Enter a valid email and a password of at least 8 characters."));
   const supabase = await createClient();
@@ -35,6 +36,7 @@ export async function loginAction(formData: FormData) {
 }
 
 export async function activateAction(formData: FormData) {
+  if (!hasSupabaseAnonConfig() || !hasSupabaseAdminConfig()) redirect("/admin/login?mode=activate&error=" + safeMessage(getSupabaseConfigError()));
   const parsed = credentials.safeParse({ email: value(formData, "email").toLowerCase(), password: value(formData, "password") });
   const fullName = value(formData, "full_name");
   if (!parsed.success || fullName.length < 2) redirect("/admin/login?mode=activate&error=" + safeMessage("Enter your name, approved email and a password of at least 8 characters."));
@@ -58,12 +60,14 @@ export async function activateAction(formData: FormData) {
 }
 
 export async function logoutAction() {
+  if (!hasSupabaseAnonConfig()) redirect("/admin/login?error=" + safeMessage(getSupabaseConfigError()));
   const supabase = await createClient();
   await supabase.auth.signOut();
   redirect("/admin/login");
 }
 
 export async function forgotPasswordAction(formData: FormData) {
+  if (!hasSupabaseAnonConfig()) redirect("/admin/forgot-password?error=" + safeMessage(getSupabaseConfigError()));
   const email = value(formData, "email").toLowerCase();
   if (!z.string().email().safeParse(email).success) redirect("/admin/forgot-password?error=" + safeMessage("Enter a valid email address."));
   const supabase = await createClient();
@@ -73,6 +77,7 @@ export async function forgotPasswordAction(formData: FormData) {
 }
 
 export async function resetPasswordAction(formData: FormData) {
+  if (!hasSupabaseAnonConfig()) redirect("/admin/reset-password?error=" + safeMessage(getSupabaseConfigError()));
   const password = value(formData, "password");
   if (password.length < 8) redirect("/admin/reset-password?error=" + safeMessage("Password must contain at least 8 characters."));
   const supabase = await createClient();
