@@ -165,11 +165,14 @@ export default async function Home({
   const stories =
     await publishedStories();
 
+  const normalizedCategory =
+    params.category?.trim().toLowerCase() ?? null;
+
   const filtered = params.category
     ? stories.filter(
         (story) =>
-          story.category ===
-          params.category
+          story.category.trim().toLowerCase() ===
+          normalizedCategory
       )
     : stories;
 
