@@ -457,28 +457,89 @@ export default async function Home({
         )}
       </main>
 
-      <footer
-        dir={isRtl ? "rtl" : "ltr"}
-      >
-        <div className="shell footer-inner">
-          <div>
-            <strong>
-              {t.brand}
-            </strong>
+      <footer className="site-footer" dir={isRtl ? "rtl" : "ltr"}>
+        <div className="shell site-footer-main">
+          <div className="footer-brand">
+            <div className="footer-brand-mark">PDTV</div>
 
-            <p>
-              {t.fullName}
-            </p>
+            <h2>Pakistan Diamond Television</h2>
+
+            <p>Pakistan Ki Awaaz, Duniya Tak.</p>
+
+            <div className="footer-socials">
+              <a
+                href="https://www.facebook.com/share/1DVMATXyiB/"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="PDTV on Facebook"
+              >
+                <span>f</span>
+                Facebook
+              </a>
+
+              <a
+                href="https://youtube.com/@pdtvnewschanel?si=taDL8cgr1Cjm6DtL"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="PDTV on YouTube"
+              >
+                <span>Y</span>
+                YouTube
+              </a>
+
+              <a
+                href="https://mail.google.com/mail/?view=cm&fs=1&to=Uh3447347@gmail.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Email PDTV"
+              >
+                <span>E</span>
+                Email
+              </a>
+            </div>
           </div>
 
-          <p>
-            ©{" "}
-            {new Date().getFullYear()}{" "}
-            {t.brand}.{" "}
-            {t.copyright}
-          </p>
+          <div className="footer-column">
+            <h3>Corporate</h3>
+
+            <Link href="/about">About Us</Link>
+            <Link href="/contact">Contact Us</Link>
+            <Link href="/careers">Careers</Link>
+            <Link href="/advertise">Advertise</Link>
+          </div>
+
+          <div className="footer-column">
+            <h3>Important Links</h3>
+
+            <Link href="/editorial-policy">Editorial Policy</Link>
+            <Link href="/corrections-policy">Corrections Policy</Link>
+            <Link href="/privacy">Privacy Policy</Link>
+            <Link href="/terms">Terms &amp; Conditions</Link>
+          </div>
+
+          <div className="footer-column">
+            <h3>Categories</h3>
+
+            <Link href={`/?lang=${language}&category=Pakistan`}>Pakistan</Link>
+            <Link href={`/?lang=${language}&category=Sindh`}>Sindh</Link>
+            <Link href={`/?lang=${language}&category=World`}>World</Link>
+            <Link href={`/?lang=${language}&category=Politics`}>Politics</Link>
+            <Link href={`/?lang=${language}&category=Sports`}>Sports</Link>
+            <Link href={`/?lang=${language}&category=Business`}>Business</Link>
+            <Link href={`/?lang=${language}&category=Technology`}>Technology</Link>
+            <Link href={`/?lang=${language}&category=Education`}>Education</Link>
+            <Link href={`/?lang=${language}&category=Entertainment`}>Entertainment</Link>
+            <Link href={`/?lang=${language}&category=Health`}>Health</Link>
+          </div>
+        </div>
+
+        <div className="footer-bottom">
+          <div className="shell footer-bottom-inner">
+            <span>© 2026 PDTV. Pakistan Ki Awaaz, Duniya Tak.</span>
+          </div>
         </div>
       </footer>
+
     </div>
   );
 }
