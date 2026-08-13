@@ -4,8 +4,11 @@ import Link from "next/link";
 
 import {
   ArrowRight,
+  Facebook,
+  Mail,
   Play,
   Radio,
+  Youtube,
 } from "lucide-react";
 
 import { SiteHeader } from "@/components/site-header";
@@ -466,14 +469,14 @@ export default async function Home({
 
             <p>Pakistan Ki Awaaz, Duniya Tak.</p>
 
-            <div className="footer-socials">
+            <div className="footer-socials" aria-label="Social and contact links">
               <a
                 href="https://www.facebook.com/share/1DVMATXyiB/"
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="PDTV on Facebook"
               >
-                <span>f</span>
+                <Facebook size={15} aria-hidden="true" />
                 Facebook
               </a>
 
@@ -483,17 +486,15 @@ export default async function Home({
                 rel="noopener noreferrer"
                 aria-label="PDTV on YouTube"
               >
-                <span>Y</span>
+                <Youtube size={15} aria-hidden="true" />
                 YouTube
               </a>
 
               <a
-                href="https://mail.google.com/mail/?view=cm&fs=1&to=Uh3447347@gmail.com"
-                target="_blank"
-                rel="noopener noreferrer"
+                href="mailto:Uh3447347@gmail.com"
                 aria-label="Email PDTV"
               >
-                <span>E</span>
+                <Mail size={15} aria-hidden="true" />
                 Email
               </a>
             </div>
@@ -536,6 +537,7 @@ export default async function Home({
         <div className="footer-bottom">
           <div className="shell footer-bottom-inner">
             <span>© 2026 PDTV. Pakistan Ki Awaaz, Duniya Tak.</span>
+            <strong>Pakistan Diamond Television</strong>
           </div>
         </div>
       </footer>
